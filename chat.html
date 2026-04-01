@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vizzy Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="chat-page">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+
+    <button class="sidebar-btn toggle-btn" id="toggleBtn" title="Toggle Sidebar">
+      <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6"  x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6"  x2="6"  y2="18"/>
+        <line x1="6"  y1="6"  x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <button class="sidebar-btn new-chat-btn" title="New Chat" onclick="newChat()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5"  y1="12" x2="19" y2="12"/>
+      </svg>
+      <span class="sidebar-label">New Chat</span>
+    </button>
+
+    <div class="sidebar-divider"></div>
+
+    <button class="sidebar-btn active" title="Chat History" id="historyToggleBtn" onclick="toggleHistory()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="sidebar-label">History</span>
+    </button>
+
+    <!-- Search — Coming Soon -->
+    <button class="sidebar-btn coming-soon-btn" title="Coming Soon" onclick="showComingSoon(this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span class="sidebar-label">Search</span>
+      <span class="coming-soon-tag">Soon</span>
+    </button>
+
+    <div class="history-panel" id="historyPanel">
+      <div class="history-title">Recent Chats</div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+  </aside>
+
+  <!-- ══ CHAT CONTAINER ══ -->
+  <div class="chat-container" id="chatContainer">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="chat-header-inner">
+        <a class="brand-mark" href="index.html" title="Go to Home">
+          <span class="brand-dot"></span>
+          <span class="brand-name">Vizzy Chat</span>
+        </a>
+        <div class="mode-badge hidden" id="modeBadge">🎨 Image Mode</div>
+        <button class="new-chat-link" onclick="newChat()">+ New Chat</button>
+      </div>
+    </header>
+
+    <!-- Chat messages -->
+    <div id="chat-box"></div>
+
+    <!-- Typing indicator -->
+    <div id="typing-indicator" class="typing-indicator hidden">
+      <div class="typing-indicator-inner">
+        <div class="typing-bubble">
+          <span></span><span></span><span></span>
+          <span class="typing-label" id="typingLabel">Thinking…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="chat-input-wrapper">
+      <div class="chat-input-inner">
+        <div class="input-card" id="inputCard">
+
+          <textarea
+            id="user-input"
+            class="main-input"
+            placeholder="Ask anything"
+            autocomplete="off"
+            autofocus
+            rows="1"
+          ></textarea>
+
+          <div class="input-toolbar">
+
+            <!-- + Dropdown -->
+            <div class="dropdown-wrapper">
+              <button class="toolbar-btn" title="More options" onclick="toggleDropdown('chatDropdown', event)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
+              <div class="dropdown-menu hidden" id="chatDropdown">
+
+                <!-- Coming Soon -->
+                <button class="dropdown-item dropdown-item-soon" onclick="showComingSoon(this); toggleDropdown('chatDropdown', event)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                  Add photos &amp; files
+                  <span class="dropdown-soon-tag">Coming Soon</span>
+                </button>
+
+                <!-- Active: Create image — calls setMode via toggleImageMode alias -->
+                <button class="dropdown-item" onclick="toggleImageMode(); toggleDropdown('chatDropdown', event)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Create image
+                </button>
+
+                <!-- Coming Soon -->
+                <button class="dropdown-item dropdown-item-soon" onclick="showComingSoon(this); toggleDropdown('chatDropdown', event)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                  Thinking
+                  <span class="dropdown-soon-tag">Coming Soon</span>
+                </button>
+
+                <!-- Coming Soon -->
+                <button class="dropdown-item dropdown-item-soon" onclick="showComingSoon(this); toggleDropdown('chatDropdown', event)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Deep research
+                  <span class="dropdown-soon-tag">Coming Soon</span>
+                </button>
+
+                <!-- Coming Soon -->
+                <button class="dropdown-item dropdown-item-soon" onclick="showComingSoon(this); toggleDropdown('chatDropdown', event)">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  More
+                  <span class="dropdown-soon-tag">Coming Soon</span>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Story Mode pill — calls toggleStoryMode() → setMode('story') -->
+            <button class="story-pill" id="storyModeBtn" title="Toggle Story Mode" onclick="toggleStoryMode()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              Story
+            </button>
+
+            <!-- Image Mode pill — calls toggleImageMode() → setMode('image') -->
+            <button class="image-pill" id="imageModeBtn" title="Toggle Image Generation" onclick="toggleImageMode()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              Image
+            </button>
+
+            <div style="flex:1"></div>
+
+            <!-- Send -->
+            <button class="send-btn" id="send-btn" title="Send" onclick="sendMessage()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"/>
+                <polyline points="5 12 12 5 19 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Coming Soon Toast -->
+  <div class="cs-toast hidden" id="csToast">🚀 Coming Soon!</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
